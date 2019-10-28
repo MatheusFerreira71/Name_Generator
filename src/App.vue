@@ -3,7 +3,7 @@
     <div class="text-center my-5">
       <h1>Eventeiros Generator</h1>
       <h6 class="text-secondary">
-        O seu gerador de nomes favorito
+        O seu gerador de domínios favorito
         <span class="fa fa-star" style="color: green;"></span>
       </h6>
     </div>
@@ -46,7 +46,7 @@
                   style="width: 100%;"
                   v-on:click="removePrefix(prefixo);"
                 >
-                  <span class="fa fa-minus"></span>
+                  <span class="fa fa-trash"></span>
                 </button>
               </div>
             </div>
@@ -60,7 +60,16 @@
                 </div>
               </div>
               <ul class="list-group list-group-flush text-center">
-                <li class="list-group-item" v-for="domain in domains" v-bind:key="domain">{{domain}}</li>
+                <li class="list-group-item" v-for="domain in domains" v-bind:key="domain">
+                  <div class="row">
+                    <div class="col-md text-left">{{domain}}</div>
+                    <div class="col-md text-right">
+                      <a class="btn btn-outline-success" href="https://www.hostgator.com.br" target="_blank">
+                        <span class="fa fa-shopping-cart"></span>
+                      </a>
+                    </div>
+                  </div>
+                </li>
               </ul>
             </div>
           </div>
@@ -96,7 +105,7 @@
                   style="width: 100%;"
                   v-on:click="removeSufix(sufixo);"
                 >
-                  <span class="fa fa-minus"></span>
+                  <span class="fa fa-trash"></span>
                 </button>
               </div>
             </div>
@@ -118,8 +127,7 @@ export default {
       prefixo: "",
       sufixo: "",
       prefixes: [],
-      sufixes: [],
-      domains: []
+      sufixes: []
     };
   },
   methods: {
@@ -129,7 +137,6 @@ export default {
       } else {
         this.prefixes.push(prefixo);
         this.prefixo = "";
-        this.gerar();
       }
     },
     addSufix(sufixo) {
@@ -138,15 +145,6 @@ export default {
       } else {
         this.sufixes.push(sufixo);
         this.sufixo = "";
-        this.gerar();
-      }
-    },
-    gerar() {
-      this.domains = [];
-      for (const prefix of this.prefixes) {
-        for (const sufix of this.sufixes) {
-          this.domains.push(prefix + sufix);
-        }
       }
     },
     removePrefix(prefixo) {
@@ -160,7 +158,6 @@ export default {
           this.prefixo = "";
         }
       }
-      this.gerar();
     },
     removeSufix(sufixo) {
       if (!sufixo) {
@@ -173,7 +170,17 @@ export default {
           this.sufixo = "";
         }
       }
-      this.gerar();
+    }
+  },
+  computed: {
+    domains() {
+      const domains = [];
+      for (const prefix of this.prefixes) {
+        for (const sufix of this.sufixes) {
+          domains.push(prefix + sufix);
+        }
+      }
+      return domains;
     }
   }
 };
