@@ -2,7 +2,7 @@
   "name": "eventeiros_generator_server",
   "version": "1.0.0",
   "description": "Pacote para o backend do Eventeiros Generator",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

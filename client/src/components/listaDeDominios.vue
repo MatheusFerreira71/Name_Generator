@@ -50,6 +50,7 @@
 <script>
 import "bootstrap/dist/css/bootstrap.css";
 import "font-awesome/css/font-awesome.css";
+import axios from "axios/dist/axios";
 import listaDeItens from "./listaDeItens";
 
 export default {
@@ -116,6 +117,32 @@ export default {
       }
       return domains;
     }
+  },
+  created() {
+    axios({
+      url: "http://localhost:4000/",
+      method: "post",
+      data: {
+        query: `
+          {
+            prefixes {
+              id
+              type
+              description
+            }
+            sufixes {
+              id
+              type
+              description
+            }
+          }
+        `
+      }
+    }).then(res => {
+      const query = res.data;
+      this.prefixes = query.data.prefixes.map(prefix => prefix.description);
+      this.sufixes = query.data.sufixes.map(prefix => prefix.description);
+    });
   }
 };
 </script>
