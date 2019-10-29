@@ -1,0 +1,28 @@
+{
+  "name": "eventeiros_generator_server",
+  "version": "1.0.0",
+  "description": "Pacote para o backend do Eventeiros Generator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MatheusFerreira71/Name_Generator.git"
+  },
+  "keywords": [
+    "gerador",
+    "de",
+    "nomes"
+  ],
+  "author": "MatheusFerreira71",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MatheusFerreira71/Name_Generator/issues"
+  },
+  "homepage": "https://github.com/MatheusFerreira71/Name_Generator#readme",
+  "dependencies": {
+    "apollo-server": "^2.9.7",
+    "graphql": "^14.5.8"
+  }
+}
