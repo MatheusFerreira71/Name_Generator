@@ -7,7 +7,7 @@
         <span class="fa fa-star" style="color: green;"></span>
       </h6>
     </div>
-    <div id="main" class="py-5">
+    <div id="main" class="py-2">
       <listaDeDominios></listaDeDominios>
     </div>
   </div>

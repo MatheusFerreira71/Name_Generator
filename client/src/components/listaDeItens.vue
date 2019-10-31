@@ -7,8 +7,17 @@
           <span class="badge badge-success">{{itens.length}}</span>
         </div>
       </div>
-      <ul class="list-group list-group-flush text-center">
-        <li class="list-group-item" v-for="item in itens" v-bind:key="item">{{item}}</li>
+      <ul class="list-group list-group-flush text-center slide">
+        <li class="list-group-item" v-for="item in itens" v-bind:key="item.id">
+          <div class="row">
+            <div class="col-md">{{item.description}}</div>
+            <div class="col-md text-right">
+              <button class="btn btn-outline-danger my-2" v-on:click="removeItens(item);">
+                <span class="fa fa-trash"></span>
+              </button>
+            </div>
+          </div>
+        </li>
       </ul>
       <div class="card-body text-center">
         <div class="input-group">
@@ -26,9 +35,6 @@
             </button>
           </div>
         </div>
-        <button class="btn btn-danger my-2" style="width: 100%;" v-on:click="removeItens(item);">
-          <span class="fa fa-trash"></span>
-        </button>
       </div>
     </div>
   </div>
@@ -57,4 +63,9 @@ export default {
 </script>
 
 <style>
+.slide {
+  height: 196px;
+  position: relative;
+  overflow-y: scroll;
+}
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="main" class="py-5">
+    <div id="main" class="py-2">
       <div class="container">
         <div class="row">
           <div class="col-md">
@@ -19,7 +19,7 @@
                   <span class="badge badge-success">{{domains.length}}</span>
                 </div>
               </div>
-              <ul class="list-group list-group-flush text-center">
+              <ul class="list-group list-group-flush text-center slides">
                 <li class="list-group-item" v-for="domain in domains" v-bind:key="domain.name">
                   <div class="row">
                     <div class="col-md text-left">{{domain.name}}</div>
@@ -69,37 +69,135 @@ export default {
       if (!prefixo) {
         alert("Informe um Prefixo");
       } else {
-        this.prefixes.push(prefixo);
+        axios({
+          url: "http://localhost:4000/",
+          method: "post",
+          data: {
+            query: `
+              mutation ($item: itemInput){
+                novoPrefixo: saveItem(item: $item){
+                  id
+                  type
+                  description
+                }
+              }
+            `,
+            variables: {
+              item: {
+                type: "prefix",
+                description: prefixo
+              }
+            }
+          }
+        }).then(() => {
+          this.getPrefixes();
+        });
       }
     },
     addSufix(sufixo) {
       if (!sufixo) {
         alert("Informe um Sufixo");
       } else {
-        this.sufixes.push(sufixo);
+        axios({
+          url: "http://localhost:4000/",
+          method: "post",
+          data: {
+            query: `
+              mutation ($item: itemInput){
+                novoSufixo: saveItem(item: $item){
+                  id
+                  type
+                  description
+                }
+              }
+            `,
+            variables: {
+              item: {
+                type: "sufix",
+                description: sufixo
+              }
+            }
+          }
+        }).then(() => {
+          this.getSufixes();
+        });
       }
     },
     removePrefix(prefixo) {
-      if (!prefixo) {
-        this.prefixes.pop();
-      } else {
-        if (this.prefixes.indexOf(prefixo) == -1) {
-          alert(`Prefixo "${prefixo}" não encontrado!`);
-        } else {
-          this.prefixes.splice(this.prefixes.indexOf(prefixo), 1);
+      axios({
+        url: "http://localhost:4000",
+        method: "post",
+        data: {
+          query: `
+                mutation($id: Int) {
+                  deleted: deleteItem(id: $id)
+                }
+              `,
+          variables: {
+            id: prefixo.id
+          }
         }
-      }
+      }).then(() => {
+        this.getPrefixes();
+      });
     },
     removeSufix(sufixo) {
-      if (!sufixo) {
-        this.sufixes.pop();
-      } else {
-        if (this.sufixes.indexOf(sufixo) == -1) {
-          alert(`Sufixo "${sufixo}" não encontrado!`);
-        } else {
-          this.sufixes.splice(this.sufixes.indexOf(sufixo), 1);
+      axios({
+        url: "http://localhost:4000",
+        method: "post",
+        data: {
+          query: `
+              mutation($id: Int) {
+                deleted: deleteItem(id: $id)
+              }
+            `,
+          variables: {
+            id: sufixo.id
+          }
         }
-      }
+      }).then(() => {
+        this.getSufixes();
+      });
+    },
+    getPrefixes() {
+      axios({
+        url: "http://localhost:4000/",
+        method: "post",
+        data: {
+          query: `
+          {
+            prefixes: itens(type: "prefix") {
+              id
+              type
+              description
+            }
+          }
+        `
+        }
+      }).then(res => {
+        const query = res.data;
+        this.prefixes = query.data.prefixes;
+      });
+    },
+    getSufixes() {
+      axios({
+        url: "http://localhost:4000/",
+        method: "post",
+        data: {
+          query: `
+          {
+            sufixes: itens(type: "sufix"){
+              id
+              type
+              description
+            }
+          }
+        `
+        }
+      }).then(res => {
+        const query = res.data;
+        this.sufixes = query.data.sufixes;
+      });
     }
   },
   computed: {
@@ -107,7 +205,7 @@ export default {
       const domains = [];
       for (const prefix of this.prefixes) {
         for (const sufix of this.sufixes) {
-          const name = prefix + sufix;
+          const name = prefix.description + sufix.description;
           const url = `https://checkout.hostgator.com.br/?a=add&sld=${name.toLowerCase()}&tld=.com`;
           domains.push({
             name,
@@ -119,33 +217,16 @@ export default {
     }
   },
   created() {
-    axios({
-      url: "http://localhost:4000/",
-      method: "post",
-      data: {
-        query: `
-          {
-            prefixes {
-              id
-              type
-              description
-            }
-            sufixes {
-              id
-              type
-              description
-            }
-          }
-        `
-      }
-    }).then(res => {
-      const query = res.data;
-      this.prefixes = query.data.prefixes.map(prefix => prefix.description);
-      this.sufixes = query.data.sufixes.map(prefix => prefix.description);
-    });
+    this.getPrefixes();
+    this.getSufixes();
   }
 };
 </script>
 
 <style>
+.slides {
+  height: 274px;
+  position: relative;
+  overflow-y: scroll;
+}
 </style>
