@@ -40,7 +40,7 @@ const resolvers = {
     Mutation: {
         saveItem(_, args){
             const item = args.item;
-            item.id = Math.floor(Math.random * 1000);
+            item.id = Math.floor(Math.random() * 1000);
             itens.push(item);
             return item;
         },
