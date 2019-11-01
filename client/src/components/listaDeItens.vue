@@ -26,11 +26,11 @@
             class="form-control"
             id="itens"
             placeholder="Digite um item!"
-            v-model="item"
-            v-on:keyup.enter="addItens(item)"
+            v-model="description"
+            v-on:keyup.enter="addItens(type, description)"
           />
           <div class="input-group-append">
-            <button class="btn btn-success" v-on:click="addItens(item);">
+            <button class="btn btn-success" v-on:click="addItens(type, description);">
               <span class="fa fa-plus"></span>
             </button>
           </div>
@@ -43,16 +43,19 @@
 <script>
 export default {
   name: "listaDeItens",
-  props: ["title", "itens"],
+  props: ["title", "type", "itens"],
   data() {
     return {
-      item: ""
+      description: ""
     };
   },
   methods: {
-    addItens(item) {
-      this.$emit("addItens", item);
-      this.item = "";
+    addItens(type, description) {
+      this.$emit("addItens", {
+        type,
+        description
+      });
+      this.description = "";
     },
     removeItens(item) {
       this.$emit("removeItens", item);

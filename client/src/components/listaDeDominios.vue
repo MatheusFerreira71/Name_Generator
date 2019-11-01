@@ -6,9 +6,10 @@
           <div class="col-md">
             <listaDeItens
               title="Prefixos"
-              v-bind:itens="prefixes"
-              v-on:addItens="addPrefix"
-              v-on:removeItens="removePrefix"
+              type="prefix"
+              v-bind:itens="itens.prefix"
+              v-on:addItens="addItem"
+              v-on:removeItens="removeItem"
             ></listaDeItens>
           </div>
           <div class="col-md">
@@ -36,9 +37,10 @@
           <div class="col-md">
             <listaDeItens
               title="Sufixos"
-              v-bind:itens="sufixes"
-              v-on:addItens="addSufix"
-              v-on:removeItens="removeSufix"
+              type="sufix"
+              v-bind:itens="itens.sufix"
+              v-on:addItens="addItem"
+              v-on:removeItens="removeItem"
             ></listaDeItens>
           </div>
         </div>
@@ -60,14 +62,16 @@ export default {
   },
   data: () => {
     return {
-      prefixes: [],
-      sufixes: []
+      itens: {
+        prefix: [],
+        sufix: []
+      }
     };
   },
   methods: {
-    addPrefix(prefixo) {
-      if (!prefixo) {
-        alert("Informe um Prefixo");
+    addItem(item) {
+      if (!item.description) {
+        alert(`Informe um ${item.type}o!`);
       } else {
         axios({
           url: "http://localhost:4000/",
@@ -75,7 +79,7 @@ export default {
           data: {
             query: `
               mutation ($item: itemInput){
-                novoPrefixo: saveItem(item: $item){
+                novoItem: saveItem(item: $item){
                   id
                   type
                   description
@@ -83,128 +87,61 @@ export default {
               }
             `,
             variables: {
-              item: {
-                type: "prefix",
-                description: prefixo
-              }
+              item
             }
           }
         }).then(() => {
-          this.getPrefixes();
+          this.getItens(item.type);
         });
       }
     },
-    addSufix(sufixo) {
-      if (!sufixo) {
-        alert("Informe um Sufixo");
-      } else {
-        axios({
-          url: "http://localhost:4000/",
-          method: "post",
-          data: {
-            query: `
-              mutation ($item: itemInput){
-                novoSufixo: saveItem(item: $item){
-                  id
-                  type
-                  description
-                }
-              }
-            `,
-            variables: {
-              item: {
-                type: "sufix",
-                description: sufixo
-              }
-            }
-          }
-        }).then(() => {
-          this.getSufixes();
-        });
-      }
-    },
-    removePrefix(prefixo) {
+    removeItem(item) {
       axios({
         url: "http://localhost:4000",
         method: "post",
         data: {
           query: `
                 mutation($id: Int) {
-                  deleted: deleteItem(id: $id)
+                  deletado: deleteItem(id: $id)
                 }
               `,
           variables: {
-            id: prefixo.id
+            id: item.id
           }
         }
       }).then(() => {
-        this.getPrefixes();
+        this.getItens(item.type);
       });
     },
-    removeSufix(sufixo) {
+    getItens(type) {
       axios({
-        url: "http://localhost:4000",
+        url: "http://localhost:4000/",
         method: "post",
         data: {
           query: `
-              mutation($id: Int) {
-                deleted: deleteItem(id: $id)
-              }
-            `,
+          query ($type: String){
+            itens: itens(type: $type) {
+              id
+              type
+              description
+            }
+          }
+        `,
           variables: {
-            id: sufixo.id
+            type
           }
-        }
-      }).then(() => {
-        this.getSufixes();
-      });
-    },
-    getPrefixes() {
-      axios({
-        url: "http://localhost:4000/",
-        method: "post",
-        data: {
-          query: `
-          {
-            prefixes: itens(type: "prefix") {
-              id
-              type
-              description
-            }
-          }
-        `
         }
       }).then(res => {
         const query = res.data;
-        this.prefixes = query.data.prefixes;
-      });
-    },
-    getSufixes() {
-      axios({
-        url: "http://localhost:4000/",
-        method: "post",
-        data: {
-          query: `
-          {
-            sufixes: itens(type: "sufix"){
-              id
-              type
-              description
-            }
-          }
-        `
-        }
-      }).then(res => {
-        const query = res.data;
-        this.sufixes = query.data.sufixes;
+        this.itens[type] = query.data.itens;
       });
     }
   },
   computed: {
     domains() {
       const domains = [];
-      for (const prefix of this.prefixes) {
-        for (const sufix of this.sufixes) {
+      for (const prefix of this.itens.prefix) {
+        for (const sufix of this.itens.sufix) {
           const name = prefix.description + sufix.description;
           const url = `https://checkout.hostgator.com.br/?a=add&sld=${name.toLowerCase()}&tld=.com`;
           domains.push({
@@ -217,8 +154,8 @@ export default {
     }
   },
   created() {
-    this.getPrefixes();
-    this.getSufixes();
+    this.getItens("prefix");
+    this.getItens("sufix");
   }
 };
 </script>
