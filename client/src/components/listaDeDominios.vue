@@ -23,8 +23,12 @@
               <ul class="list-group list-group-flush text-center slides">
                 <li class="list-group-item" v-for="domain in domains" v-bind:key="domain.name">
                   <div class="row">
-                    <div class="col-md text-left">{{domain.name}}</div>
-                    <div class="col-md text-right">
+                    <div class="col-md-5 text-left">{{domain.name}}</div>
+                    <div class="col-md-4">
+                      <span class="badge badge-success" v-if="domain.available">Disponível</span>
+                      <span class="badge badge-danger" v-else>Não Disponível</span>
+                    </div>
+                    <div class="col-md-3 text-right">
                       <a class="btn btn-outline-success" v-bind:href="domain.url" target="_blank">
                         <span class="fa fa-shopping-cart"></span>
                       </a>
@@ -65,7 +69,8 @@ export default {
       itens: {
         prefix: [],
         sufix: []
-      }
+      },
+      domains: []
     };
   },
   methods: {
@@ -74,7 +79,7 @@ export default {
         alert(`Informe um ${item.type}o!`);
       } else {
         axios({
-          url: "http://localhost:4000/",
+          url: "http://192.168.0.18:4000/",
           method: "post",
           data: {
             query: `
@@ -90,14 +95,17 @@ export default {
               item
             }
           }
-        }).then(() => {
-          this.getItens(item.type);
+        }).then(res => {
+          const query = res.data;
+          const novoItem = query.data.novoItem;
+          this.itens[item.type].push(novoItem);
+          this.generateDomains();
         });
       }
     },
     removeItem(item) {
       axios({
-        url: "http://localhost:4000",
+        url: "http://192.168.0.18:4000",
         method: "post",
         data: {
           query: `
@@ -110,12 +118,13 @@ export default {
           }
         }
       }).then(() => {
-        this.getItens(item.type);
+        this.itens[item.type].splice(this.itens[item.type].indexOf(item), 1);
+        this.generateDomains();
       });
     },
     getItens(type) {
-      axios({
-        url: "http://localhost:4000/",
+      return axios({
+        url: "http://192.168.0.18:4000/",
         method: "post",
         data: {
           query: `
@@ -135,27 +144,32 @@ export default {
         const query = res.data;
         this.itens[type] = query.data.itens;
       });
-    }
-  },
-  computed: {
-    domains() {
-      const domains = [];
-      for (const prefix of this.itens.prefix) {
-        for (const sufix of this.itens.sufix) {
-          const name = prefix.description + sufix.description;
-          const url = `https://checkout.hostgator.com.br/?a=add&sld=${name.toLowerCase()}&tld=.com`;
-          domains.push({
-            name,
-            url
-          });
+    },
+    generateDomains() {
+      axios({
+        url: "http://192.168.0.18:4000/",
+        method: "post",
+        data: {
+          query: `
+            mutation {
+              domains: generateDomains {
+                name
+                url
+                available
+              }
+            }
+          `
         }
-      }
-      return domains;
+      }).then(res => {
+        const query = res.data;
+        this.domains = query.data.domains;
+      });
     }
   },
   created() {
-    this.getItens("prefix");
-    this.getItens("sufix");
+    Promise.all([this.getItens("prefix"), this.getItens("sufix")]).then(() => {
+      this.generateDomains();
+    });
   }
 };
 </script>
