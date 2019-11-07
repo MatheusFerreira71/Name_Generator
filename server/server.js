@@ -1,10 +1,17 @@
 const { ApolloServer } = require("apollo-server");
+const dns = require('dns');
 
 const typeDefs = `
     type Item {
         id: Int
         type: String
         description: String
+    }
+
+    type Domain { 
+        name: String
+        url: String
+        available: Boolean
     }
 
     type Query {
@@ -19,6 +26,7 @@ const typeDefs = `
     type Mutation {
         saveItem(item: itemInput) : Item
         deleteItem(id: Int): Boolean
+        generateDomains: [Domain]
     }
 `;
 
@@ -31,6 +39,18 @@ const itens = [
     { id: 6, type: "sufix", description: "Limbo" },
 ];
 
+const isDomainAvailable = (url) => {
+    return new Promise((resolve, reject) => {
+        dns.resolve(url, (error) => {
+            if (error) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        });
+    });
+}
+
 const resolvers = {
     Query: {
         itens(_, args) {
@@ -38,18 +58,34 @@ const resolvers = {
         }
     },
     Mutation: {
-        saveItem(_, args){
+        saveItem(_, args) {
             const item = args.item;
             item.id = Math.floor(Math.random() * 1000);
             itens.push(item);
             return item;
         },
-        deleteItem(_, args){
+        deleteItem(_, args) {
             const id = args.id;
             const item = itens.find(item => item.id === id);
-            if(!item) return false;
+            if (!item) return false;
             itens.splice(itens.indexOf(item), 1);
             return true;
+        },
+        async generateDomains() {
+            const domains = [];
+            for (const prefix of itens.filter(item => item.type === 'prefix')) {
+                for (const sufix of itens.filter(item => item.type === 'sufix')) {
+                    const name = prefix.description + sufix.description;
+                    const available = await isDomainAvailable(`${name.toLowerCase()}.com.br`) 
+                    const url = `https://checkout.hostgator.com.br/?a=add&sld=${name.toLowerCase()}&tld=.com.br`;
+                    domains.push({
+                        name,
+                        url,
+                        available
+                    });
+                }
+            }
+            return domains;
         }
     }
 
