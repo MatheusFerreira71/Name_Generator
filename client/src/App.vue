@@ -8,7 +8,7 @@
       </h6>
     </div>
     <div id="main" class="py-2">
-      <listaDeDominios></listaDeDominios>
+      <router-view></router-view>
     </div>
   </div>
 </template>
@@ -16,12 +16,11 @@
 <script>
 import "bootstrap/dist/css/bootstrap.css";
 import "font-awesome/css/font-awesome.css";
-import listaDeDominios from "./components/listaDeDominios";
+
 
 export default {
   name: "app",
   components: {
-    listaDeDominios
   }
 };
 </script>

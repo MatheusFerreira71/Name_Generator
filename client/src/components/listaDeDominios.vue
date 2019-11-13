@@ -3,7 +3,7 @@
     <div id="main" class="py-2">
       <div class="container">
         <div class="row">
-          <div class="col-md">
+          <div class="col-md-4">
             <listaDeItens
               title="Prefixos"
               type="prefix"
@@ -12,7 +12,7 @@
               v-on:removeItens="removeItem"
             ></listaDeItens>
           </div>
-          <div class="col-md">
+          <div class="col-md-4 my-2">
             <div class="card" style="width: 100%;">
               <div class="card-body text-center">
                 <div class="card-title">
@@ -23,22 +23,18 @@
               <ul class="list-group list-group-flush text-center slides">
                 <li class="list-group-item" v-for="domain in domains" v-bind:key="domain.name">
                   <div class="row">
-                    <div class="col-md-5 text-left">{{domain.name}}</div>
-                    <div class="col-md-4">
-                      <span class="badge badge-success" v-if="domain.available">Disponível</span>
-                      <span class="badge badge-danger" v-else>Não Disponível</span>
-                    </div>
-                    <div class="col-md-3 text-right">
-                      <a class="btn btn-outline-success" v-bind:href="domain.url" target="_blank">
-                        <span class="fa fa-shopping-cart"></span>
-                      </a>
+                    <div class="col-6 text-left">{{domain.name}}</div>
+                    <div class="col-6 text-right">
+                      <button class="btn btn-outline-primary my-1" @click="openDomain(domain)">
+                        <span class="fa fa-search"></span>
+                      </button>
                     </div>
                   </div>
                 </li>
               </ul>
             </div>
           </div>
-          <div class="col-md">
+          <div class="col-md-4">
             <listaDeItens
               title="Sufixos"
               type="sufix"
@@ -163,6 +159,11 @@ export default {
       }).then(res => {
         const query = res.data;
         this.domains = query.data.domains;
+      });
+    },
+    openDomain(domain) {
+      this.$router.push({
+        path: `/domains/${domain.name}`
       });
     }
   },

@@ -12,6 +12,7 @@ const typeDefs = `
         name: String
         url: String
         available: Boolean
+        extension: String
     }
 
     type Query {
@@ -27,6 +28,7 @@ const typeDefs = `
         saveItem(item: itemInput) : Item
         deleteItem(id: Int): Boolean
         generateDomains: [Domain]
+        generateDomain(name: String): [Domain]
     }
 `;
 
@@ -76,7 +78,7 @@ const resolvers = {
             for (const prefix of itens.filter(item => item.type === 'prefix')) {
                 for (const sufix of itens.filter(item => item.type === 'sufix')) {
                     const name = prefix.description + sufix.description;
-                    const available = await isDomainAvailable(`${name.toLowerCase()}.com.br`) 
+                    const available = await isDomainAvailable(`${name.toLowerCase()}.com.br`);
                     const url = `https://checkout.hostgator.com.br/?a=add&sld=${name.toLowerCase()}&tld=.com.br`;
                     domains.push({
                         name,
@@ -84,6 +86,22 @@ const resolvers = {
                         available
                     });
                 }
+            }
+            return domains;
+        },
+        async generateDomain(_, args) {
+            const name = args.name;
+            const domains = [];
+            const extensions = ['.com.br', '.com', '.net', '.org'];
+            for (const extension of extensions) {
+                const available = await isDomainAvailable(`${name.toLowerCase()}${extension}`);
+                const url = `https://checkout.hostgator.com.br/?a=add&sld=${name.toLowerCase()}&tld=${extension}`;
+                domains.push({
+                    name,
+                    url,
+                    available,
+                    extension
+                });
             }
             return domains;
         }

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="card" style="width: 100%;">
+    <div class="card my-2" style="width: 100%;">
       <div class="card-body text-center">
         <div class="card-title">
           {{ title }}
@@ -10,8 +10,8 @@
       <ul class="list-group list-group-flush text-center slide">
         <li class="list-group-item" v-for="item in itens" v-bind:key="item.id">
           <div class="row">
-            <div class="col-md">{{item.description}}</div>
-            <div class="col-md text-right">
+            <div class="col">{{item.description}}</div>
+            <div class="col text-right">
               <button class="btn btn-outline-danger my-2" v-on:click="removeItens(item);">
                 <span class="fa fa-trash"></span>
               </button>
@@ -25,7 +25,7 @@
             type="text"
             class="form-control"
             id="itens"
-            placeholder="Digite um item!"
+            placeholder="Digite um Item."
             v-model="description"
             v-on:keyup.enter="addItens(type, description)"
           />
