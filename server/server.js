@@ -1,5 +1,6 @@
 const { ApolloServer } = require("apollo-server");
 const dns = require('dns');
+const service = require('./service');
 
 const typeDefs = `
     type Item {
@@ -32,15 +33,6 @@ const typeDefs = `
     }
 `;
 
-const itens = [
-    { id: 1, type: "prefix", description: "Pedra" },
-    { id: 2, type: "prefix", description: "Papel" },
-    { id: 3, type: "prefix", description: "Tesoura" },
-    { id: 4, type: "sufix", description: "Cachorro" },
-    { id: 5, type: "sufix", description: "Kissaça" },
-    { id: 6, type: "sufix", description: "Limbo" },
-];
-
 const isDomainAvailable = (url) => {
     return new Promise((resolve, reject) => {
         dns.resolve(url, (error) => {
@@ -55,26 +47,25 @@ const isDomainAvailable = (url) => {
 
 const resolvers = {
     Query: {
-        itens(_, args) {
-            return itens.filter(item => item.type === args.type);
+        async itens(_, args) {
+            const itens = await service.getItensByType(args.type);
+            return itens;
         }
     },
     Mutation: {
-        saveItem(_, args) {
+        async saveItem(_, args) {
             const item = args.item;
-            item.id = Math.floor(Math.random() * 1000);
-            itens.push(item);
-            return item;
+            const [newItem] = await service.saveItem(item);
+            return newItem;
         },
-        deleteItem(_, args) {
+        async deleteItem(_, args) {
             const id = args.id;
-            const item = itens.find(item => item.id === id);
-            if (!item) return false;
-            itens.splice(itens.indexOf(item), 1);
+            await service.deleteItem(id);
             return true;
         },
         async generateDomains() {
             const domains = [];
+            const itens = await service.getItens();
             for (const prefix of itens.filter(item => item.type === 'prefix')) {
                 for (const sufix of itens.filter(item => item.type === 'sufix')) {
                     const name = prefix.description + sufix.description;

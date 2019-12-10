@@ -12,6 +12,14 @@ const client = new Client({
 
 client.connect();
 
-client.query("select * from eventeiros.item", (err, res) => {
-    console.log(res.rows);
-});
+exports.execute = (query, values) => {
+    return new Promise((resolve, reject) => {
+        client.query(query, values, (err, res) => {
+            if(err) {
+                reject(err);
+            } else {
+                resolve(res.rows); 
+            }
+        });
+    });
+};
